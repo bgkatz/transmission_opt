@@ -1,15 +1,16 @@
 
 
 # Based on: http://labs.casadi.org/OCP
+# Explanation of the dynamics constraint here: 
+# http://build-its-inprogress.blogspot.com/2020/06/simple-dynamics-with-variable.html
 
 from casadi import *
 from pylab import* 
 import csv
 
+N = 200 # number of control intervals
 
-N = 300 # number of control intervals
-
-m = .8 		    # mass            (kg)
+m = .75 		          # mass            (kg)
 j_rotor = 6e-6 		 # rotor inertia   (kg*m^2)
 l_leg = .35 			 # leg length      (m)
 tau = 1.6 			    # motor torque    (N-m)
@@ -112,15 +113,18 @@ draw()
 figure()
 polar(sol.value(theta), sol.value(k), label="K")
 draw()
+
 figure()
 plot(sol.value(theta), sol.value(k), label="K")
 legend(loc="upper left")
+xlabel('Rotor Angle (rad)')
+ylabel('Transmission Ratio')
 draw()
 
 figure()
-plot(sol.value(thetad),  label="Motor Speed")
-plot(sol.value(accel),  label="Vertical Acceleration")
-legend(loc="upper left")
+plot(sol.value(thetad),  label="Motor Speed (rad/s)")
+plot(sol.value(accel),  label="Vertical Acceleration (m/s^2)")
+legend(loc="lower left")
 draw()
 
 
@@ -136,6 +140,7 @@ plot(pe_body, label="pe body")
 plot(e_input, label="input energy")
 plot(ke_rotor+ke_body+pe_body, label="total energy")
 legend(loc="upper left")
+ylabel('Energy (J)')
 draw()
 
 show()
