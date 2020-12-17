@@ -7,8 +7,11 @@
 from casadi import *
 from pylab import* 
 import csv
+import time
+t_start = time.time()
+print(t_start)
 
-N = 200 # number of control intervals
+N = 500 # number of control intervals
 
 m = .75 		          # mass            (kg)
 j_rotor = 6e-6 		 # rotor inertia   (kg*m^2)
@@ -61,11 +64,11 @@ for i in range(N): # loop over control intervals
    
 
 ### bounds  ###
-opti.subject_to(opti.bounded(0,kd,50))             # transmission ratio derivative bounds (no infinite slopes)
-opti.subject_to(opti.bounded(0.0008,k,1))           # transmission ratio bounds (meters per radian)
+opti.subject_to(opti.bounded(0,kd,80))             # transmission ratio derivative bounds (no infinite slopes)
+opti.subject_to(opti.bounded(0.0015,k,1))           # transmission ratio bounds (meters per radian)
 opti.subject_to(opti.bounded(0, thetad, w_max))	   # maximum motor angular velocity
 opti.subject_to(opti.bounded(.01, T, .5))          # reasonable takeoff time limits
-opti.subject_to(opti.bounded(0, accel, 1000))      # acceleration limits
+opti.subject_to(opti.bounded(0, accel, 1200))      # acceleration limits
 
 
 ####  boundary conditions  ###
@@ -97,7 +100,16 @@ print(h_max)
 ####  save the transmission profile ####
 col1 = sol.value(theta)
 col2 = sol.value(k)
-numpy.savetxt("profile.csv", [col1, col2], delimiter=",")
+
+r = 7
+xcol = r*sin(sol.value(theta))
+ycol = r*cos(sol.value(theta))
+zcol = 1000*sol.value(pos)
+
+#numpy.savetxt("profile.csv", [col1, col2], delimiter=",")
+print(time.time()-t_start)
+numpy.savetxt('screw_profile.txt', np.c_[xcol, ycol, zcol], delimiter = ' ')
+
 
 
 ### Do some plotting ###
@@ -142,5 +154,9 @@ plot(ke_rotor+ke_body+pe_body, label="total energy")
 legend(loc="upper left")
 ylabel('Energy (J)')
 draw()
+
+figure()
+plot(sol.value(pos), sol.value(k))
+
 
 show()
